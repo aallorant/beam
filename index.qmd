@@ -1,0 +1,9 @@
+---
+title: "Black Educational Achievement Movement - Survey History and Design"
+---
+
+Statistics both as quantitative information and as a specialized branch of mathematics have acquired a central importance to describe and debate the most important social debates of our times- health and economic inequalities, political disenfranchement immigration, mass incarceration, and others.
+
+The key role of statistics in the US democratic system is underlined by the decennial Census, a constitutional requirement, and that has been conducted 24 times since 1790, including the most recent census conducted during the COVID-19 pandemic, and whose role extends beyond providing demographic estimates, but also determines the distribution of seats at the Congress.
+
+The goal of this presentation is to introduce students to the socio-historical context of the development of official statistics in the US, to highlight the contemporary importance of quantification across areas of the public sphere, and underscore the values of critical approaches to data and statistical methods, which rather than objectivity carry over the biases of the society and researchers that develop them.

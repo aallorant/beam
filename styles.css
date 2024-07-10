@@ -1,0 +1,23 @@
+.reveal {
+  font-family: 'Lato', sans-serif;
+}
+
+.reveal section {
+  background-color: #f4f4f4; /* Light grey background */
+  color: #333333; /* Dark grey text */
+}
+
+.reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 {
+  color: #4682b4; /* Steelblue for headings */
+}
+
+.reveal .slide-number {
+  color: #555555; /* Darker grey for slide numbers */
+}
+
+.reveal pre code {
+  background: #f4f4f4;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  color: #333333;
+}

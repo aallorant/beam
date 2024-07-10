@@ -1,0 +1,5 @@
+---
+title: "About"
+---
+
+This website includes the materials presented during the BEAM summer camp. The presentations were meant to introduce students to the socio-historical context of survey development (and other data collection efforts like the decennial census) in the US.
