@@ -44,7 +44,7 @@ knitr::opts_chunk$set(
 
 # History of Data Collection in the US
 
-## The US Census
+## The Census and the US population
 
 ```{r}
 #| echo: false
@@ -77,6 +77,8 @@ pop_plot <- ggplot(pop_us, aes(x = Year, y = Population)) +
 pop_plot
 
 ```
+
+## The Census and the US population
 
 ```{r}
 #| echo: false
@@ -125,84 +127,60 @@ print(pie_chart)
 
 ```
 
-## The US Census
+## The Census and the US population
 
 ::: incremental
 - The US Census
   + A constitutional right
   + Assess every 10 years the equilibrium between each US State and their number of representatives at the Congress
 
-<br>
-
 - How?
-  + Data sources: The **Decennial Census** and the **American Community Survey**
-  + Unit of analysis: **Census Tracts** as the unit of analysis
+  + Census Bureau
 
-<br>
+- Which indicators?
+  + **Age/sex**
+  + **Income**
+  + **Education**
 
-- Which metrics?
-  + **Median Household Income**
-  + **Percentage of Black Residents**
-
-- Why these metrics?
+- Why these indicators?
 :::
 
 
 ## The Creation of the Census Bureau
 
-- The Census Bureau was created in 1902
 - Responsible for collecting data on the US population and economy
 - Publishes various surveys and reports beyond the Decennial Census
-
-# Principles for Survey and Data Collection
-
-- Importance of sample design
-- Question wording and order effects
-- Data collection methods (e.g., face-to-face, telephone, online)
-- Ethical considerations in data collection
 
 # Critical Approaches to Quantification
 
 ## Quantitative Critical (QuantCrit) Research
 
-### The Centrality of Oppression
-- Structural racism and sexism plague systems
-- Focus on identifying mechanisms and impacts of oppressive systems
-
 ### Data and Methods are Not Neutral
 - Biases in data collection and analysis
-- Use confidence intervals instead of p-values
-
-### Data Cannot Speak for Itself
-- Providing perspective to avoid dominant racist and sexist interpretations
+- Structural racism and sexism affect data collection
 
 ### Groups are Neither Natural nor Inherent
 - Identities are socially constructed and fluid
-- Transparent data aggregation respecting identities
-
-### Taking an Intersectional Perspective
 - Identity is multifaceted
-- Interaction terms for demographic variables in statistical models
 
 ### Valuing Narrative and Counter-Narrative
 - Importance of lived experiences and counter-narratives
-- Inclusion of diverse perspectives in research teams
+- Importance of data proficiency to tell your own stories
 
 # Survey data
 
-## Happiness
+## Example: the Happiness Survey
 
 ```{r}
+#| echo: false
 # Install and load necessary libraries
-
-
 library(rvest)
 library(tidyverse)
-
-# URL of the webpage
+library(PNWColors)
+# URL of the Wikipedia page
 url <- 'https://en.wikipedia.org/wiki/World_Happiness_Report'
 
-# Read the HTML content from the webpage
+# Read the HTML content from the Wikipedia page
 webpage <- read_html(url)
 
 # Extract all tables from the webpage
@@ -212,26 +190,28 @@ tables <- webpage %>%
 # Initialize a list to store data frames
 df_list <- list()
 
-# Loop through each table, check if it contains "Country" or "Country or region", and store in the list
+# Loop through each table and check if it is a ranking table
 for (i in 1:length(tables)) {
   table <- tables[[i]] %>%
-    html_table(fill = TRUE)
-  # Check if the table has the relevant header
-  if ("Country" %in% names(table) || "Country or region" %in% names(table)) {
-    df_list[[length(df_list) + 1]] <- as.data.frame(table)
+    html_table(fill = TRUE) %>%
+    as.data.frame()
+  
+  # Check if the table has the relevant columns
+  if (any(grepl("Country|Country or region", names(table), ignore.case = TRUE)) &
+      any(grepl("Score|Happiness score|Cantril ladder score|Happiness.Score", names(table), ignore.case = TRUE))) {
+    df_list[[length(df_list) + 1]] <- table
   }
 }
+df_list <- df_list[1:3]
 
 # Combine all the data into one dataframe
 happiness_data <- bind_rows(df_list, .id = "Year")
-
 # Clean and rename columns
 happiness_data <- happiness_data %>%
-  rename_with(~ c("Rank", "Country", "Score", "GDP_per_capita", "Social_support", "Healthy_life_expectancy", "Freedom_to_make_life_choices", "Generosity", "Perceptions_of_corruption", "Dystopia_residual", "Year"), everything()) %>%
-  select(Country, Score, Year) %>%
-  filter(!is.na(Score)) %>%
-  mutate(Score = as.numeric(Score),
-         Year = as.numeric(Year))
+  select(Country = matches("Country|Country or region|Nation|Country/Region"),
+         Score,
+         Year) %>%
+  filter(!is.na(Score))
 
 # Select countries of interest
 selected_countries <- c("United States", "Canada", "Mexico", "Finland", "Afghanistan")
@@ -240,17 +220,22 @@ selected_countries <- c("United States", "Canada", "Mexico", "Finland", "Afghani
 happiness_selected <- happiness_data %>%
   filter(Country %in% selected_countries) %>%
   select(Country, Score, Year)
+# Change Year labels to 2015, 2020, 2024
+happiness_selected <- happiness_selected %>%
+  mutate(Year = recode(Year, `3` = 2015, `2` = 2020, `1` = 2024))
 
 # Create a time-series plot
 happiness_time_series <- ggplot(happiness_selected, aes(x = Year, y = Score, color = Country, group = Country)) +
   geom_line(size = 1.2) +
   geom_point(size = 2) +
+  scale_color_manual(values = pnw_palette("Sailboat", n = 5, type = "discrete")) +
+  scale_x_continuous(breaks = c(2015, 2020, 2024)) +
   labs(
-    title = "Happiness Scores Over Time for Selected Countries",
+    title = "Happiness Scores",
     x = "Year",
     y = "Happiness Score",
     color = "Country"
-  ) +
+  ) + ylim(0, 10) +
   theme_minimal(base_size = 14) +
   theme(
     plot.title = element_text(face = "bold", size = 16, hjust = 0.5, color = "#4682b4"),
@@ -263,10 +248,53 @@ happiness_time_series <- ggplot(happiness_selected, aes(x = Year, y = Score, col
 # Display the plot
 print(happiness_time_series)
 
-
 ```
 
-## Principles of survey
+## Example: the Happiness Survey
+
+```{r}
+#| echo: false
+library(ggrepel)
+# Combine all the data into one dataframe
+happiness_data <- bind_rows(df_list, .id = "Year")
+# Clean and rename columns
+happiness_data <- happiness_data %>%
+  select(Country = matches("Country|Country or region|Nation|Country/Region"),
+         Score,
+         `GDP per capita`,
+         Year) %>%
+  filter(!is.na(Score) & !is.na(`GDP per capita`))
+
+# Change Year labels to 2015, 2020, 2024
+happiness_data <- happiness_data %>%
+  mutate(Year = recode(Year, `1` = 2015, `2` = 2020, `3` = 2024))
+
+# Filter the data for the first year (2015)
+happiness_2015 <- happiness_data %>%
+  filter(Year == 2024)
+
+scatterplot <- ggplot(happiness_2015, aes(x = 40000*`GDP per capita`, y = Score, label = Country)) +
+  geom_point(size = 3, color = pnw_palette("Sailboat", n = 1)) +
+  geom_text_repel(size = 3) +
+  labs(
+    title = "Happiness Score vs GDP per Capita (2015)",
+    x = "GDP per Capita",
+    y = "Happiness Score"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5, color = "#4682b4"),
+    axis.title.x = element_text(face = "bold", color = "#4682b4"),
+    axis.title.y = element_text(face = "bold", color = "#4682b4"),
+    axis.text = element_text(size = 12, color = "#333333"),
+    legend.title = element_text(face = "bold", color = "#4682b4")
+  )
+# Display the plot
+print(scatterplot)
+```
+
+
+## Principles for survey design
 
 1. Objective(s): **Why**
 2. Target population: **Who**
